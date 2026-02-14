@@ -1,0 +1,16 @@
+services:
+  mtproxy:
+    build: .
+    platform: linux/amd64
+    container_name: mtproxy
+    ports:
+      - "443:443"   # Proxy port for Telegram clients
+      - "8888:8888" # Stats endpoint (optional, localhost only recommended)
+    volumes:
+      - proxy-data:/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+volumes:
+  proxy-data:
