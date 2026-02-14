@@ -26,6 +26,18 @@ WORKERS="${WORKERS:-1}"
 set -- -u nobody -p "${STATS_PORT}" -H "${HOST_PORT}" -S "${SECRET}" \
     --aes-pwd /data/proxy-secret /data/proxy-multi.conf -M "${WORKERS}"
 [ -n "${PROXY_TAG}" ] && set -- "$@" -P "${PROXY_TAG}"
+# Required when behind NAT (e.g. cloud Floating IP): proxy must advertise external IP to clients
+# MTProxy matches local_ip exactly; in Docker that is the container's bridge IP (e.g. 172.18.0.2), not 0.0.0.0
+if [ -n "${EXTERNAL_IP}" ]; then
+  CONTAINER_IP="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '/src/{print $7;exit}')"
+  if [ -n "${CONTAINER_IP}" ]; then
+    set -- "$@" --nat-info "${CONTAINER_IP}:${EXTERNAL_IP}"
+    echo "[*] NAT: advertising ${EXTERNAL_IP} for local ${CONTAINER_IP}"
+  else
+    echo "[!] EXTERNAL_IP set but could not detect container IP; NAT may not work"
+    set -- "$@" --nat-info "0.0.0.0:${EXTERNAL_IP}"
+  fi
+fi
 
 echo "[*] Starting mtproto-proxy on port ${HOST_PORT}..."
 exec mtproto-proxy "$@"

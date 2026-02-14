@@ -66,6 +66,7 @@ You must set `SECRET=`. Other parameters are optional:
 - `WORKERS` — number of workers (default: 1)
 - `HOST_PORT` — proxy port inside container (default: 443)
 - `STATS_PORT` — stats port (default: 8888)
+- `EXTERNAL_IP` — **required when behind NAT** (e.g. cloud Floating IP): your public IP that clients connect to. Get it with `curl -s ifconfig.me`
 
 ### 4. Start
 
@@ -174,6 +175,21 @@ docker compose down
 ### Random padding (DPI bypass)
 
 If your ISP blocks MTProxy by packet size, add the `dd` prefix to the secret in the link: `dd` + your secret. See: [MTProxy README](https://github.com/TelegramMessenger/MTProxy#random-padding).
+
+### Proxy doesn't connect (behind NAT / Floating IP)
+
+If your server is behind NAT or uses a cloud Floating IP (e.g. OpenStack, Chameleon), add to `.env`:
+
+```
+EXTERNAL_IP=130.49.149.106
+```
+
+Replace with your actual public IP (`curl -s ifconfig.me`). The entrypoint auto-detects the container's IP and passes the correct `--nat-info` so clients receive the external address in the handshake. Rebuild and restart: `docker compose up -d --build`.
+
+### Other troubleshooting
+
+- **"Connecting..." forever**: Try adding `dd` prefix to the secret in the link (e.g. `dd` + your 32-char secret) to bypass DPI; use a different network (mobile data vs WiFi); ensure port 443 is open in cloud Security Group.
+- **"Updating..." / no messages load**: Proxy may not reach Telegram DCs — check outbound connectivity from the server; some clouds restrict it.
 
 ### Port 443 in use
 

@@ -1,5 +1,6 @@
 services:
   mtproxy:
+    image: smartex/mtp-proxy:latest
     build: .
     platform: linux/amd64
     container_name: mtproxy
