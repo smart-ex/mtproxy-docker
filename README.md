@@ -1,6 +1,6 @@
 # MTProxy — VPS deployment via Docker
 
-Ready-to-use Dockerfile and docker-compose for quick deployment of the [official MTProxy](https://github.com/TelegramMessenger/MTProxy) on a VPS. Builds from source for the latest proxy version.
+Ready-to-use Dockerfile and docker-compose for quick deployment of the [official MTProxy](https://github.com/TelegramMessenger/MTProxy) on a VPS. Uses the pre-built image from [Docker Hub](https://hub.docker.com/r/smartex/mtp-proxy) or builds from source.
 
 **Important:** Do not publish the `.env` file or commit your secret to the repository. Copy `.env.example` to `.env`, set `SECRET`, and never commit `.env`.
 
@@ -23,12 +23,14 @@ Docker and Docker Compose installation:
 
 ### 1. Preparation
 
-Copy the project to your VPS (via git clone or scp):
+Copy the project to your VPS (via git clone or scp) or use only the required files. The image is published at [smartex/mtp-proxy on Docker Hub](https://hub.docker.com/r/smartex/mtp-proxy):
 
 ```bash
 git clone <YOUR_REPO_URL> mtp-proxy
 cd mtp-proxy
 ```
+
+Or quick deploy: create a folder with `docker-compose.yml` and `.env` (see below); the image will be pulled automatically.
 
 ### 2. Secret generation
 
@@ -205,20 +207,8 @@ And use `port=8443` in the link.
 
 ### Platform
 
-The default `docker-compose.yml` uses `platform: linux/amd64`. For ARM (e.g. Raspberry Pi), adjust the platform or build accordingly.
+The default `docker-compose.yml` uses `platform: linux/amd64`. For ARM (e.g. Raspberry Pi), adjust the platform or build from source with `build: .` in `docker-compose.yml`.
 
----
+### Published image
 
-## Project structure
-
-```
-mtp-proxy/
-├── Dockerfile
-├── docker-compose.yml
-├── entrypoint.sh
-├── generate-secret.sh
-├── .env.example
-├── .gitignore
-├── LICENSE
-└── README.md
-```
+The image is published on [Docker Hub](https://hub.docker.com/r/smartex/mtp-proxy). Use `docker compose pull` to fetch it, or remove `build: .` from `docker-compose.yml` to rely on the pre-built image only.
